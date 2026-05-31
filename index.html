@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WE Shine</title>
+    <style>
+        :root {
+            --primary-color: #4e148c;
+            --secondary-color: #00b4d8;
+            --dark-bg: #0b0c10;
+            --card-bg: #1f2833;
+            --text-color: #c5c6c7;
+        }
+
+        *, *:before, *:after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(0, 180, 216, 0.2);
+            text-align: center;
+            max-width: 100%;
+            width: 400px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 22px;
+            margin-bottom: 10px;
+        }
+
+        p {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: #95a5a6;
+            line-height: 1.5;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            border: 2px solid #45f3ff;
+            background: transparent;
+            border-radius: 25px;
+            color: #fff;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 15px var(--secondary-color);
+        }
+
+        button {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 12px 30px;
+            margin: 15px 0 5px 0;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        #previewCanvas {
+            width: 100% !important;
+            height: auto !important;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: block;
+        }
+    </style>
+    <link rel="icon" href="We-Logo.png" type="image/x-icon">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Visitors Gate WE School Gharbia Branch</h1>
+        <p>شكرا لحضورك حفل اليوم نتمنى أن تكون/ي استمتعت/ي باليوم من فضلك اكتب/ي اسمك لإستلام كارت الشكر الخاص بك</p>
+        
+        <input type="text" id="studentName" placeholder="اكتب اسمك هنا..." autocomplete="off">
+        <button onclick="generateCard()">اصدار / تحديث الكارت ←</button>
+        
+        <canvas id="previewCanvas"></canvas>
+        
+        <button id="downloadBtn" style="margin-top: 15px;">تحميل الكارت الآن ↓</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("previewCanvas");
+        const ctx = canvas.getContext("2d");
+        canvas.width = 1920;
+        canvas.height = 1080;
+
+        let cardTemplate = new Image();
+        cardTemplate.src = 'card.png'; 
+        cardTemplate.onload = function() {
+            ctx.drawImage(cardTemplate, 0, 0, 1920, 1080);
+        };
+
+        function generateCard() {
+            const nameInput = document.getElementById("studentName").value.trim();
+            
+            if (nameInput === "") {
+                alert("من فضلك اكتب اسمك أولاً!");
+                return;
+            }
+
+          
+            ctx.clearRect(0, 0, 1920, 1080);
+            ctx.drawImage(cardTemplate, 0, 0, 1920, 1080);
+
+        
+            ctx.fillStyle = "#ffffff"; 
+            ctx.font = "bold 65px  Arial"; 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle"; 
+            
+           
+            ctx.fillText(nameInput, 1920 / 2, 1080 / 2); 
+        }
+
+       
+        document.getElementById("downloadBtn").onclick = function() {
+            const nameInput = document.getElementById("studentName").value.trim();
+            const filename = nameInput === "" ? "WE_Shine_Visitors_Card" : `WE_Thank_You_${nameInput}`;
+            
+            const imageLink = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.download = `${filename}.png`;
+            link.href = imageLink;
+            link.click();
+        };
+    </script>
+</body>
+</html>

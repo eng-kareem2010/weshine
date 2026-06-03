@@ -133,4 +133,86 @@
         canvas.height = 1080;
 
         let cardTemplate = new Image();
-        cardTemplate
+        cardTemplate.src = 'card.png';
+
+        function isLocalStorageAvailable() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        window.onload = function() {
+            if (isLocalStorageAvailable()) {
+                const savedName = localStorage.getItem("visitor_name");
+                const savedTicket = localStorage.getItem("visitor_ticket");
+
+                if (savedName && savedTicket) {
+                    document.getElementById("resultContainer").style.display = "block";
+                    
+                    if (cardTemplate.complete) {
+                        drawCard(savedName, savedTicket);
+                    } else {
+                        cardTemplate.onload = function() {
+                            drawCard(savedName, savedTicket);
+                        };
+                    }
+                    return;
+                }
+            }
+            document.getElementById("formContainer").style.display = "block";
+        };
+
+        function generateCard() {
+            const nameInput = document.getElementById("studentName").value.trim();
+            
+            if (nameInput === "") {
+                alert("Please enter your name first!");
+                return;
+            }
+
+            const ticketNumber = "WE-" + Math.floor(100000 + Math.random() * 900000);
+
+            if (isLocalStorageAvailable()) {
+                localStorage.setItem("visitor_name", nameInput);
+                localStorage.setItem("visitor_ticket", ticketNumber);
+            }
+
+            document.getElementById("formContainer").style.display = "none";
+            document.getElementById("resultContainer").style.display = "block";
+
+            drawCard(nameInput, ticketNumber);
+        }
+
+        function drawCard(name, ticket) {
+            ctx.clearRect(0, 0, 1920, 1080);
+            ctx.drawImage(cardTemplate, 0, 0, 1920, 1080);
+
+            ctx.fillStyle = "#000000"; 
+            ctx.font = "bold 52px Tahoma"; 
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle"; 
+            ctx.fillText(name, 1920 / 2, 590); 
+
+            ctx.fillStyle = "#4e148c"; 
+            ctx.font = "bold 38px 'Segoe UI', sans-serif";
+            ctx.fillText("Ticket No: " + ticket, 1920 / 2, 720); 
+            
+            ctx.fillStyle = "#7f8c8d"; 
+            ctx.font = "bold 28px 'Segoe UI', sans-serif";
+            ctx.fillText("Valid for Gharbia Branch Only", 1920 / 2, 780); 
+            
+            document.getElementById("downloadBtn").onclick = function() {
+                const imageLink = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.download = `WE_GatePass_${ticket}.png`;
+                link.href = imageLink;
+                link.click();
+            };
+        }
+    </script>
+</body>
+</html>

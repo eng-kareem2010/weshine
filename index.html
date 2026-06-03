@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WE Shine</title>
+    <title>WE Shine Digital Ticket</title>
     <style>
         :root {
             --primary-color: #4e148c;
@@ -38,6 +38,13 @@
             max-width: 100%;
             width: 400px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+
+        .school-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
         }
 
         h1 {
@@ -93,68 +100,111 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             display: block;
         }
+
+        #formContainer, #resultContainer {
+            display: none;
+        }
     </style>
-    <link rel="icon" href="We-Logo.png" type="image/x-icon">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Visitors Gate WE School Gharbia Branch</h1>
-        <p>شكرا لحضورك حفل اليوم نتمنى أن تكون/ي استمتعت/ي باليوم من فضلك اكتب/ي اسمك لإستلام كارت الشكر الخاص بك</p>
-        
-        <input type="text" id="studentName" placeholder="اكتب اسمك هنا..." autocomplete="off">
-        <button onclick="generateCard()">اصدار / تحديث الكارت ←</button>
+    <div class="container" id="formContainer">
+        <img src="ًWe-Logo.png" alt="WE School Logo" class="school-logo">
+        <h1>WE Shine Digital Ticket</h1>
+        <p>Please enter your full name to generate your official access ticket for the event. (One ticket per device)</p>
+        <input type="text" id="studentName" placeholder="Enter your full name..." autocomplete="off">
+        <button onclick="generateCard()">Generate Access Pass →</button>
+    </div>
+
+    <div class="container" id="resultContainer">
+        <h1 style="color: #2ecc71;">Access Granted Successfully!</h1>
+        <p>Please present this pass to the gate security to enter the venue. You can also download it below.</p>
         
         <canvas id="previewCanvas"></canvas>
         
-        <button id="downloadBtn" style="margin-top: 15px;">تحميل الكارت الآن ↓</button>
+        <button id="downloadBtn" style="margin-top: 15px;">Download Pass ↓</button>
     </div>
 
     <script>
         const canvas = document.getElementById("previewCanvas");
         const ctx = canvas.getContext("2d");
+
         canvas.width = 1920;
         canvas.height = 1080;
 
         let cardTemplate = new Image();
         cardTemplate.src = 'card.png'; 
-        cardTemplate.onload = function() {
-            ctx.drawImage(cardTemplate, 0, 0, 1920, 1080);
+
+        function isLocalStorageAvailable() {
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                return true;
+            } catch(e) {
+                return false;
+            }
+        }
+
+        window.onload = function() {
+            if (isLocalStorageAvailable()) {
+                const savedName = localStorage.getItem("visitor_name");
+                const savedTicket = localStorage.getItem("visitor_ticket");
+
+                if (savedName && savedTicket) {
+                    document.getElementById("resultContainer").style.display = "block";
+                    cardTemplate.onload = function() {
+                        drawCard(savedName, savedTicket);
+                    };
+                    return;
+                }
+            }
+            document.getElementById("formContainer").style.display = "block";
         };
 
         function generateCard() {
             const nameInput = document.getElementById("studentName").value.trim();
             
             if (nameInput === "") {
-                alert("من فضلك اكتب اسمك أولاً!");
+                alert("Please enter your name first!");
                 return;
             }
 
-          
+            const ticketNumber = "WE-" + Math.floor(100000 + Math.random() * 900000);
+
+            if (isLocalStorageAvailable()) {
+                localStorage.setItem("visitor_name", nameInput);
+                localStorage.setItem("visitor_ticket", ticketNumber);
+            }
+
+            document.getElementById("formContainer").style.display = "none";
+            document.getElementById("resultContainer").style.display = "block";
+
+            drawCard(nameInput, ticketNumber);
+        }
+
+        function drawCard(name, ticket) {
             ctx.clearRect(0, 0, 1920, 1080);
             ctx.drawImage(cardTemplate, 0, 0, 1920, 1080);
 
-        
-            ctx.fillStyle = "#ffffff"; 
-            ctx.font = "bold 65px  Arial"; 
+            // 1. Draw Full Name
+            ctx.fillStyle = "#000000"; 
+            ctx.font = "bold 52px Tahoma"; 
             ctx.textAlign = "center";
             ctx.textBaseline = "middle"; 
-            
-           
-            ctx.fillText(nameInput, 1920 / 2, 1080 / 2); 
-        }
+            ctx.fillText(name, 1920 / 2, 590); 
 
-       
-        document.getElementById("downloadBtn").onclick = function() {
-            const nameInput = document.getElementById("studentName").value.trim();
-            const filename = nameInput === "" ? "WE_Shine_Visitors_Card" : `WE_Thank_You_${nameInput}`;
+            ctx.fillStyle = "#4e148c"; 
+            ctx.font = "bold 38px 'Segoe UI', sans-serif";
+            ctx.fillText("Ticket No: " + ticket, 1920 / 2, 720); 
             
-            const imageLink = canvas.toDataURL("image/png");
-            const link = document.createElement("a");
-            link.download = `${filename}.png`;
-            link.href = imageLink;
-            link.click();
-        };
+            document.getElementById("downloadBtn").onclick = function() {
+                const imageLink = canvas.toDataURL("image/png");
+                const link = document.createElement("a");
+                link.download = `WE_GatePass_${ticket}.png`;
+                link.href = imageLink;
+                link.click();
+            };
+        }
     </script>
 </body>
 </html>
